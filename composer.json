@@ -1,0 +1,21 @@
+{
+  "name": "jpry/alfred-workflow-hipsum",
+  "description": "Workflow for generating text from hipsum.co.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "JPry\\AlfredWorkflow\\Hipsum\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Jeremy Pry",
+      "email": "jeremy.pry@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "guzzlehttp/guzzle": "^7.0"
+  }
+}
