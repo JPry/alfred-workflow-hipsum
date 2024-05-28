@@ -1,0 +1,56 @@
+name: Create Alfred Workflow
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install composer dependencies
+        uses: php-actions/composer@v6
+        with:
+          command: install
+          dev: no
+          args: -o
+          php_version: "8.1"
+
+      - name: Build Alfred Workflow
+        id: alfred_builder
+        uses: com30n/build-alfred-workflow@v1
+        with:
+          workflow_dir: .
+          exclude_patterns: 'composer.*'
+          custom_version: ${{ github.ref_name }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Alfred Workflow
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.alfred_builder.outputs.workflow_file }}
+          asset_name: ${{ steps.alfred_builder.outputs.workflow_file }}
+          asset_content_type: application/zip
